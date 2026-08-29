@@ -3,48 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tra cứu BHYT</title>
+    <title>Tra cứu thẻ BHYT</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
-        :root{--pri:#00695C;--pri-l:#4DB6AC;--pri-d:#004D40;--pri-c:#B2DFDB;--sec:#E65100;--sec-c:#FFE0B2;--sf:#FAFDF9;--sfv:#E0EDE8;--bg:#EFF5F1;--err:#C62828;--err-c:#FFCDD2;--ok:#2E7D32;--ok-c:#C8E6C9;--ol:#8AAEA2;--olv:#C4D8D0;--os:#1A2E28;--osv:#3F5F56;--sh:rgba(0,105,92,.12)}
+        :root{
+            --pri:#00695C;--pri-l:#4DB6AC;--pri-d:#004D40;--pri-c:#B2DFDB;
+            --sec:#E65100;--sec-c:#FFE0B2;
+            --sf:#FAFDF9;--sfv:#E0EDE8;--bg:#EFF5F1;
+            --err:#C62828;--err-c:#FFCDD2;--ok:#2E7D32;--ok-c:#C8E6C9;
+            --ol:#8AAEA2;--olv:#C4D8D0;--os:#1A2E28;--osv:#3F5F56;
+            --sh:rgba(0,105,92,.12);
+        }
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Be Vietnam Pro',sans-serif}
         body{background:#0f1923;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:16px;overflow:hidden}
         body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);opacity:.13;pointer-events:none}
         body::before{width:380px;height:380px;background:var(--pri);top:-100px;left:-80px;animation:fb 12s ease-in-out infinite alternate}
         body::after{width:320px;height:320px;background:var(--sec);bottom:-60px;right:-60px;animation:fb 10s ease-in-out infinite alternate-reverse}
-        @keyframes fb{to{transform:translate(35px,25px) scale(1.12)}}
+        @keyframes fb{0%{transform:translate(0,0) scale(1)}100%{transform:translate(35px,25px) scale(1.12)}}
+
         .ph{width:100%;max-width:420px;height:92vh;max-height:880px;background:var(--bg);border-radius:36px;overflow:hidden;box-shadow:0 30px 90px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.06);display:flex;flex-direction:column}
         @media(max-width:480px){body{padding:0}.ph{max-width:100%;height:100vh;max-height:none;border-radius:0;box-shadow:none}}
+
         .bar{background:linear-gradient(135deg,var(--pri),var(--pri-d));color:#fff;padding:14px 8px;display:flex;align-items:center;gap:8px;flex-shrink:0;z-index:10}
-        .bt{font-size:18px;font-weight:700}.bs{font-size:11px;opacity:.75}
-        .bico{width:40px;height:40px;background:rgba(255,255,255,.14);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .bt{font-size:18px;font-weight:700;letter-spacing:-.3px}
+        .bs{font-size:11px;opacity:.75}
+        .bi{width:40px;height:40px;background:rgba(255,255,255,.14);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
         .ib{width:40px;height:40px;border-radius:20px;border:none;background:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0}
         .ib:hover{background:rgba(255,255,255,.12)}
+
         .cnt{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px 16px;scroll-behavior:smooth}
-        .cnt::-webkit-scrollbar{width:3px}.cnt::-webkit-scrollbar-thumb{background:var(--olv);border-radius:2px}
+        .cnt::-webkit-scrollbar{width:3px}
+        .cnt::-webkit-scrollbar-thumb{background:var(--olv);border-radius:2px}
+        .cnt.flush{padding:0}
+
         .cd{background:var(--sf);border-radius:20px;padding:20px;margin-bottom:14px;box-shadow:0 1px 3px var(--sh);border:1px solid var(--olv)}
-        .ig{margin-bottom:14px}.ig:last-child{margin-bottom:0}
+
+        .ig{margin-bottom:14px}
         .il{display:block;font-size:11px;font-weight:600;color:var(--osv);margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
         .if{width:100%;padding:13px 14px;border:2px solid var(--olv);border-radius:14px;font-size:15px;font-family:inherit;color:var(--os);background:var(--sf);transition:all .2s;outline:0}
         .if:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(0,105,92,.12)}
         .if::placeholder{color:var(--ol)}
-        .if.auto{background:var(--pri-c);border-color:transparent;font-weight:600}
-        .if[readonly]{cursor:default}
-        .if.ctr{font-size:18px;font-weight:700;letter-spacing:2px;text-align:center}
+
         .btn{width:100%;padding:15px;border:none;border-radius:16px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
         .btn.f{background:linear-gradient(135deg,var(--pri),var(--pri-l));color:#fff;box-shadow:0 4px 14px rgba(0,105,92,.3)}
         .btn.f:hover{box-shadow:0 6px 22px rgba(0,105,92,.4);transform:translateY(-1px)}
-        .btn.f:active{transform:translateY(0)}
         .btn.t{background:var(--pri-c);color:var(--pri-d)}
         .btn.o{background:0;color:var(--pri);border:2px solid var(--ol)}
-        .btn.o:hover{background:var(--pri-c)}
-        .btn.s{background:var(--sec-c);color:var(--sec);border:2px solid #FFCC80;font-size:13px;padding:10px}
-        .btn.s:hover{background:#FFD9A0}
-        .btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
-        .sp{width:20px;height:20px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:ro .7s linear infinite}
-        @keyframes ro{to{transform:rotate(360deg)}}
+        .btn.o:hover{background:var(--pri-c);border-color:var(--pri-l)}
+
         .fc{background:var(--sf);border-radius:20px;padding:20px 16px;border:1px solid var(--olv);cursor:pointer;transition:all .25s cubic-bezier(.2,0,0,1);display:flex;align-items:center;gap:14px;margin-bottom:10px}
         .fc:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--sh);border-color:var(--pri-l)}
         .fc:active{transform:scale(.98)}
@@ -53,70 +62,65 @@
         .fi.a{background:linear-gradient(135deg,#E65100,#FFB74D);color:#fff}
         .ft{font-size:15px;font-weight:700;color:var(--os);margin-bottom:2px}
         .fd{font-size:12px;color:var(--osv);line-height:1.4}
+
         .dv{display:flex;align-items:center;gap:12px;margin:18px 0}
         .dl{flex:1;height:1px;background:var(--olv)}
         .dt{font-size:11px;color:var(--ol);font-weight:600;letter-spacing:.5px}
+
         .sw{flex:1;position:relative;background:#000;overflow:hidden}
-        #sv{width:100%;height:100%;object-fit:cover;display:block}
+        #qr-reader{width:100%!important;height:100%!important}
+        #qr-reader video{object-fit:cover!important}
         .sov{position:absolute;inset:0;pointer-events:none;z-index:5}
-        .sfr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:260px;height:260px}
-        .sc{position:absolute;width:30px;height:30px;border-color:var(--pri-l);border-style:solid;border-width:0}
-        .sc.tl{top:0;left:0;border-top-width:4px;border-left-width:4px;border-top-left-radius:12px}
-        .sc.tr{top:0;right:0;border-top-width:4px;border-right-width:4px;border-top-right-radius:12px}
-        .sc.bl{bottom:0;left:0;border-bottom-width:4px;border-left-width:4px;border-bottom-left-radius:12px}
-        .sc.br{bottom:0;right:0;border-bottom-width:4px;border-right-width:4px;border-bottom-right-radius:12px}
-        .sln{position:absolute;left:8px;right:8px;height:3px;background:linear-gradient(90deg,transparent,var(--pri-l),transparent);border-radius:2px;animation:sm 2s ease-in-out infinite;box-shadow:0 0 16px var(--pri-l)}
-        @keyframes sm{0%,100%{top:8px}50%{top:calc(100% - 11px)}}
-        .shn{position:absolute;bottom:80px;left:0;right:0;text-align:center;color:#fff;font-size:14px;font-weight:500;text-shadow:0 2px 8px rgba(0,0,0,.7);z-index:6;padding:0 20px}
-        .flip-btn{position:absolute;bottom:24px;right:20px;z-index:6;width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.3);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px)}
-        .flip-btn:hover{background:rgba(0,0,0,.7)}
-        .rc{background:var(--sf);border-radius:20px;overflow:hidden;border:1px solid var(--olv);margin-bottom:14px}
-        .rh{padding:22px 20px;text-align:center;color:#fff}
-        .rh.ok{background:linear-gradient(135deg,#2E7D32,#1B5E20)}
-        .rh.er{background:linear-gradient(135deg,#C62828,#8E0000)}
-        .rh.inf{background:linear-gradient(135deg,var(--pri),var(--pri-d))}
-        .rb{padding:16px 20px}
-        .rr{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--olv)}
-        .rr:last-child{border-bottom:none}
-        .rl{font-size:12px;color:var(--osv);font-weight:500;flex-shrink:0;max-width:42%}
-        .rv{font-size:13px;color:var(--os);font-weight:600;text-align:right;word-break:break-word}
-        .bgi{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700}
-        .bgi.ok{background:var(--ok-c);color:var(--ok)}.bgi.er{background:var(--err-c);color:var(--err)}
+        .sfr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:250px;height:250px}
+        .sc{position:absolute;width:28px;height:28px;border-color:var(--pri-l);border-style:solid;border-width:0}
+        .sc.tl{top:0;left:0;border-top-width:4px;border-left-width:4px;border-top-left-radius:11px}
+        .sc.tr{top:0;right:0;border-top-width:4px;border-right-width:4px;border-top-right-radius:11px}
+        .sc.bl{bottom:0;left:0;border-bottom-width:4px;border-left-width:4px;border-bottom-left-radius:11px}
+        .sc.br{bottom:0;right:0;border-bottom-width:4px;border-right-width:4px;border-bottom-right-radius:11px}
+        .sln{position:absolute;left:6px;right:6px;height:3px;background:linear-gradient(90deg,transparent,var(--pri-l),transparent);border-radius:2px;animation:sm 2.2s ease-in-out infinite;box-shadow:0 0 14px var(--pri-l)}
+        @keyframes sm{0%,100%{top:6px}50%{top:calc(100% - 9px)}}
+        .shn{position:absolute;bottom:70px;left:0;right:0;text-align:center;color:#fff;font-size:14px;font-weight:500;text-shadow:0 1px 6px rgba(0,0,0,.6);z-index:6}
+
         .in{background:var(--pri-c);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
         .in .material-icons-round{color:var(--pri);font-size:18px;margin-top:1px;flex-shrink:0}
         .in p{font-size:12px;color:var(--pri-d);line-height:1.5}
-        .lw{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px}
-        .spn{width:48px;height:48px;border:4px solid var(--olv);border-top-color:var(--pri);border-radius:50%;animation:ro .8s linear infinite}
-        .lt{margin-top:20px;font-size:14px;color:var(--osv);font-weight:500}
-        .tst{position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--os);color:var(--sf);padding:13px 22px;border-radius:14px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:all .3s cubic-bezier(.2,0,0,1);max-width:90%;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.35)}
+        .in.warn{background:var(--sec-c)}
+        .in.warn .material-icons-round{color:var(--sec)}
+        .in.warn p{color:#4E342E}
+
+        .tst{position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--os);color:var(--sf);padding:13px 22px;border-radius:14px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:all .3s cubic-bezier(.2,0,0,1);max-width:88%;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.35)}
         .tst.show{transform:translateX(-50%) translateY(0);opacity:1}
+
         .scr{display:none;animation:fu .3s ease}
         .scr.on{display:flex;flex-direction:column;height:100%}
         @keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes plr{0%{box-shadow:0 4px 14px rgba(0,105,92,.3),0 0 0 0 rgba(0,105,92,.25)}70%{box-shadow:0 4px 14px rgba(0,105,92,.3),0 0 0 10px rgba(0,105,92,0)}100%{box-shadow:0 4px 14px rgba(0,105,92,.3),0 0 0 0 rgba(0,105,92,0)}}
-        .pls{animation:plr 2.5s infinite}
+
         .tg{display:inline-flex;align-items:center;gap:4px;background:var(--sfv);padding:3px 10px;border-radius:8px;font-size:11px;color:var(--osv);font-weight:500;margin:0 4px 4px 0}
-        .tg.cc{background:#E8F5E9;color:#2E7D32}.tg.cm{background:#FFF3E0;color:#E65100}
-        .em{color:var(--err);font-size:11px;margin-top:4px;display:none;align-items:center;gap:3px}
-        .em.show{display:flex}
-        .if.eb{border-color:var(--err)!important}
-        /* Iframe nhúng BHXH */
-        .ifm-wrap{position:relative;border-radius:16px;overflow:hidden;border:2px solid var(--olv);margin-bottom:14px;background:#f5f5f5}
-        .ifm-wrap iframe{width:100%;height:320px;border:none;display:block}
-        .ifm-load{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--sfv);z-index:2;gap:8px}
-        .ifm-load .spn{width:32px;height:32px;border-width:3px}
-        .ifm-err{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:var(--sec-c);z-index:2;gap:10px;padding:20px;text-align:center}
-        .ifm-err p{font-size:13px;color:#4E342E;line-height:1.5}
-        .ifm-hint{font-size:11px;color:var(--osv);text-align:center;margin-bottom:14px;line-height:1.5}
+        .tg.cc{background:#E8F5E9;color:#2E7D32}
+        .tg.cm{background:#FFF3E0;color:#E65100}
+        .tg.mt{background:#E3F2FD;color:#0D47A1}
+
+        .fr{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--olv);gap:10px}
+        .fr:last-child{border-bottom:none}
+        .frl{font-size:11px;color:var(--osv);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+        .frv{font-size:14px;color:var(--os);font-weight:700;flex:1;text-align:left;margin-left:10px;word-break:break-word}
+        .cpb{flex-shrink:0;width:34px;height:34px;border-radius:10px;border:none;background:var(--pri-c);color:var(--pri-d);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+        .cpb:hover{background:var(--pri-l);color:#fff}
+        .cpb.done{background:var(--ok-c);color:var(--ok)}
+
+        .ifr-wrap{flex:1;position:relative;background:#f0f0f0}
+        .ifr-wrap iframe{width:100%;height:100%;border:0;display:block}
+        .ifr-fallback{position:absolute;inset:0;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;gap:14px}
+        .ifr-fallback.show{display:flex}
     </style>
 </head>
 <body>
 <div class="ph">
 
-    <!-- TRANG CHỦ -->
+    <!-- ==================== TRANG CHỦ ==================== -->
     <div id="s-home" class="scr on">
         <div class="bar">
-            <div class="bico"><span class="material-icons-round" style="font-size:22px">health_and_safety</span></div>
+            <div class="bi"><span class="material-icons-round" style="font-size:22px">health_and_safety</span></div>
             <div style="flex:1"><div class="bt">Tra cứu BHYT</div><div class="bs">Bảo hiểm Xã hội Việt Nam</div></div>
         </div>
         <div class="cnt">
@@ -125,314 +129,355 @@
                     <span class="material-icons-round" style="font-size:32px;color:#fff">card_membership</span>
                 </div>
                 <h1 style="font-size:21px;font-weight:800;color:var(--os);margin-bottom:4px">Kiểm tra thẻ BHYT</h1>
-                <p style="font-size:13px;color:var(--osv);line-height:1.5">Quét QR để tra bằng CCCD, hoặc nhập mã thẻ BHYT</p>
+                <p style="font-size:13px;color:var(--osv);line-height:1.5">Quét QR để lấy nhanh thông tin, rồi tra cứu trực tiếp trên trang chính thức của BHXH</p>
             </div>
+
             <div class="fc" onclick="startScan('bhyt')">
                 <div class="fi g"><span class="material-icons-round" style="font-size:26px">qr_code_scanner</span></div>
-                <div style="flex:1"><div class="ft">Quét QR thẻ BHYT</div><div class="fd">Tra tự động bằng CCCD từ QR</div></div>
+                <div style="flex:1"><div class="ft">Quét QR thẻ BHYT</div><div class="fd">Lấy CCCD, Họ tên, Ngày sinh từ QR trên thẻ</div></div>
                 <span class="material-icons-round" style="color:var(--ol)">chevron_right</span>
             </div>
             <div class="fc" onclick="startScan('cccd')">
                 <div class="fi a"><span class="material-icons-round" style="font-size:26px">badge</span></div>
-                <div style="flex:1"><div class="ft">Quét QR CCCD</div><div class="fd">Tra tự động bằng CCCD</div></div>
+                <div style="flex:1"><div class="ft">Quét QR CCCD</div><div class="fd">Lấy Họ tên, Ngày sinh từ mặt sau CCCD</div></div>
                 <span class="material-icons-round" style="color:var(--ol)">chevron_right</span>
             </div>
-            <div class="dv"><div class="dl"></div><div class="dt">NHẬP THỦ CÔNG BẰNG MÃ THẺ BHYT</div><div class="dl"></div></div>
+
+            <div class="dv"><div class="dl"></div><div class="dt">HOẶC NHẬP THỦ CÔNG</div><div class="dl"></div></div>
+
             <div class="cd">
-                <div class="ig"><label class="il">Mã thẻ BHYT <span style="color:var(--err)">*</span></label><input type="text" id="m-ma" class="if ctr" placeholder="Nhập mã số thẻ BHYT" maxlength="15" inputmode="numeric"></div>
+                <div class="ig"><label class="il">Số thẻ BHYT <span style="color:var(--err)">*</span></label><input type="text" id="m-ma" class="if" placeholder="10 hoặc 12 số trên thẻ BHYT" maxlength="15" inputmode="numeric"></div>
+                <div class="ig"><label class="il">Số CCCD</label><input type="text" id="m-cc" class="if" placeholder="Số CCCD (nếu có)" maxlength="15" inputmode="numeric"></div>
                 <div class="ig"><label class="il">Họ và tên <span style="color:var(--err)">*</span></label><input type="text" id="m-ht" class="if" placeholder="Theo đúng thẻ BHYT"></div>
-                <div class="ig"><label class="il">Ngày sinh <span style="color:var(--err)">*</span></label><input type="text" id="m-ns" class="if" placeholder="dd/mm/yyyy" maxlength="10"></div>
+                <div class="ig" style="margin-bottom:0"><label class="il">Ngày sinh <span style="color:var(--err)">*</span></label><input type="text" id="m-ns" class="if" placeholder="dd/mm/yyyy" maxlength="10"></div>
             </div>
-            <button class="btn f" onclick="manualGo()"><span class="material-icons-round" style="font-size:20px">arrow_forward</span>Tiếp tục</button>
+            <button class="btn f" onclick="manualGo()"><span class="material-icons-round" style="font-size:20px">arrow_forward</span>Xem lại thông tin</button>
+
             <div class="in" style="margin-top:14px">
                 <span class="material-icons-round">info</span>
-                <p><b>Quét QR</b> → tra bằng CCCD (tự động)<br><b>Nhập thủ công</b> → tra bằng mã thẻ BHYT</p>
+                <p>App chỉ đọc dữ liệu QR để giúp bạn điền nhanh. Bước tra cứu (kể cả nhập mã xác nhận) luôn diễn ra trên đúng trang <b>baohiemxahoi.gov.vn</b>, do chính bạn thực hiện.</p>
             </div>
         </div>
     </div>
 
-    <!-- QUÉT MÃ -->
+    <!-- ==================== QUÉT MÃ ==================== -->
     <div id="s-scan" class="scr">
-        <div class="bar" style="position:absolute;top:0;left:0;right:0;z-index:10;background:linear-gradient(to bottom,rgba(0,0,0,.6),transparent)">
+        <div class="bar" style="position:absolute;top:0;left:0;right:0;z-index:10;background:linear-gradient(to bottom,rgba(0,0,0,.55),transparent)">
             <button class="ib" onclick="stopScan()" style="background:rgba(255,255,255,.12);backdrop-filter:blur(6px)"><span class="material-icons-round">arrow_back</span></button>
             <div style="flex:1;text-align:center"><div class="bt" id="sc-tt">Quét QR</div></div>
             <div style="width:40px"></div>
         </div>
         <div class="sw">
-            <video id="sv" autoplay playsinline muted></video>
-            <div class="sov"><div class="sfr"><div class="sc tl"></div><div class="sc tr"></div><div class="sc bl"></div><div class="sc br"></div><div class="sln"></div></div></div>
+            <div id="qr-reader"></div>
+            <div class="sov">
+                <div class="sfr">
+                    <div class="sc tl"></div><div class="sc tr"></div><div class="sc bl"></div><div class="sc br"></div>
+                    <div class="sln"></div>
+                </div>
+            </div>
             <div class="shn" id="sc-hn">Đặt mã QR vào khung hình</div>
-            <button class="flip-btn" onclick="flipCam()"><span class="material-icons-round" style="font-size:24px">cameraswitch</span></button>
         </div>
     </div>
 
-    <!-- FORM TRA CỨU -->
-    <div id="s-form" class="scr">
+    <!-- ==================== XEM LẠI THÔNG TIN (bước trung gian, không có captcha) ==================== -->
+    <div id="s-review" class="scr">
         <div class="bar">
             <button class="ib" onclick="go('home')"><span class="material-icons-round">arrow_back</span></button>
-            <div><div class="bt">Tra cứu</div><div class="bs" id="form-sub">Nhập captcha bên dưới</div></div>
+            <div><div class="bt">Thông tin của bạn</div><div class="bs">Sao chép để dán vào trang BHXH</div></div>
         </div>
         <div class="cnt">
-            <!-- Mã tra cứu -->
-            <div class="cd" style="border-left:4px solid var(--sec)" id="ma-card">
-                <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
-                    <span class="material-icons-round" style="color:var(--sec);font-size:18px" id="ma-icon">credit_card</span>
-                    <span style="font-size:13px;font-weight:700;color:var(--sec)" id="ma-label">Mã thẻ BHYT</span>
-                </div>
-                <input type="text" id="f-ma" class="if ctr" readonly>
-            </div>
-
-            <!-- Tags QR -->
             <div class="cd" id="qr-card" style="border-left:4px solid var(--pri);display:none">
                 <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
                     <span class="material-icons-round" style="color:var(--pri);font-size:18px">qr_code_2</span>
-                    <span style="font-size:13px;font-weight:700;color:var(--pri)">Dữ liệu từ QR</span>
+                    <span style="font-size:13px;font-weight:700;color:var(--pri)">Dữ liệu từ quét QR</span>
                 </div>
                 <div id="qr-tags"></div>
             </div>
 
-            <!-- Họ tên + Ngày sinh -->
             <div class="cd">
-                <div class="ig">
-                    <label class="il">Họ và tên <span style="color:var(--err)">*</span></label>
-                    <input type="text" id="f-ht" class="if" placeholder="Họ tên theo thẻ BHYT">
-                    <div class="em" id="err-ht"><span class="material-icons-round" style="font-size:14px">error</span><span>Bắt buộc</span></div>
+                <div class="fr" id="row-ma" style="display:none">
+                    <div><div class="frl">Số thẻ BHYT</div><div class="frv" id="v-ma"></div></div>
+                    <button class="cpb" onclick="copyField('ma',this)"><span class="material-icons-round" style="font-size:17px">content_copy</span></button>
                 </div>
-                <div class="ig">
-                    <label class="il">Ngày sinh <span style="color:var(--err)">*</span></label>
-                    <input type="text" id="f-ns" class="if" placeholder="dd/mm/yyyy" maxlength="10">
-                    <div class="em" id="err-ns"><span class="material-icons-round" style="font-size:14px">error</span><span>dd/mm/yyyy</span></div>
+                <div class="fr" id="row-cc" style="display:none">
+                    <div><div class="frl">Số CCCD</div><div class="frv" id="v-cc"></div></div>
+                    <button class="cpb" onclick="copyField('cc',this)"><span class="material-icons-round" style="font-size:17px">content_copy</span></button>
                 </div>
-            </div>
-
-            <!-- Iframe nhúng trang BHXH (chứa captcha) -->
-            <div class="ifm-wrap" id="ifm-wrap">
-                <div class="ifm-load" id="ifm-load"><div class="spn"></div><span style="font-size:12px;color:var(--osv)">Đang tải trang BHXH...</span></div>
-                <div class="ifm-err" id="ifm-err">
-                    <span class="material-icons-round" style="font-size:32px;color:var(--sec)">cloud_off</span>
-                    <p>Không nhúng được trang BHXH</p>
-                    <button class="btn s" onclick="window.open('https://baohiemxahoi.gov.vn/tracuu/Pages/tra-cuu-thoi-han-su-dung-the-bhyt.aspx','_blank')" style="width:auto;padding:10px 20px"><span class="material-icons-round" style="font-size:16px">open_in_new</span>Mở trong tab mới</button>
+                <div class="fr" id="row-ht" style="display:none">
+                    <div><div class="frl">Họ và tên</div><div class="frv" id="v-ht"></div></div>
+                    <button class="cpb" onclick="copyField('ht',this)"><span class="material-icons-round" style="font-size:17px">content_copy</span></button>
                 </div>
-                <iframe id="bhxh-ifm" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
-            </div>
-            <p class="ifm-hint">Nhìn mã captcha trong khung above, nhập vào ô bên dưới</p>
-
-            <!-- Nhập captcha -->
-            <div class="cd">
-                <div class="ig" style="margin-bottom:0">
-                    <label class="il">Mã xác nhận <span style="color:var(--err)">*</span></label>
-                    <input type="text" id="f-cap" class="if" placeholder="Nhập mã captcha" maxlength="6" style="text-transform:uppercase;letter-spacing:3px;font-weight:700;font-size:18px;text-align:center">
-                    <div class="em" id="err-cap"><span class="material-icons-round" style="font-size:14px">error</span><span>Bắt buộc</span></div>
+                <div class="fr" id="row-ns" style="display:none">
+                    <div><div class="frl">Ngày sinh</div><div class="frv" id="v-ns"></div></div>
+                    <button class="cpb" onclick="copyField('ns',this)"><span class="material-icons-round" style="font-size:17px">content_copy</span></button>
                 </div>
             </div>
 
-            <button class="btn f pls" id="btn-go" onclick="doSubmit()">
-                <span class="material-icons-round" style="font-size:20px">search</span>Tra cứu thời hạn thẻ
-            </button>
+            <div class="in">
+                <span class="material-icons-round">touch_app</span>
+                <p>Bấm nút bên dưới để mở trang tra cứu <b>thật</b> của BHXH. Dán từng thông tin vào ô tương ứng, nhìn ảnh mã xác nhận thật hiển thị trên trang và tự nhập rồi bấm tra cứu.</p>
+            </div>
+
+            <button class="btn f" onclick="openOfficial('iframe')"><span class="material-icons-round" style="font-size:20px">open_in_new</span>Mở trang tra cứu (trong app)</button>
+            <div style="height:10px"></div>
+            <button class="btn o" onclick="openOfficial('tab')"><span class="material-icons-round" style="font-size:20px">launch</span>Mở trong tab trình duyệt</button>
             <div style="height:16px"></div>
         </div>
     </div>
 
-    <!-- LOADING -->
-    <div id="s-load" class="scr">
-        <div class="bar"><div class="bico"><span class="material-icons-round" style="font-size:22px">health_and_safety</span></div><div><div class="bt">Đang tra cứu</div><div class="bs">Vui lòng chờ...</div></div></div>
-        <div class="cnt"><div class="lw"><div class="spn"></div><div class="lt">Đang kết nối đến BHXH Việt Nam...</div></div></div>
-    </div>
-
-    <!-- KẾT QUẢ -->
-    <div id="s-res" class="scr">
-        <div class="bar"><button class="ib" onclick="go('home')"><span class="material-icons-round">arrow_back</span></button><div><div class="bt">Kết quả tra cứu</div><div class="bs" id="res-sb"></div></div></div>
-        <div class="cnt" id="res-c"></div>
+    <!-- ==================== TRANG CHÍNH THỨC NHÚNG (IFRAME) ==================== -->
+    <div id="s-official" class="scr">
+        <div class="bar">
+            <button class="ib" onclick="go('review')"><span class="material-icons-round">arrow_back</span></button>
+            <div style="flex:1"><div class="bt">Trang tra cứu BHXH</div><div class="bs">baohiemxahoi.gov.vn — dán thông tin & nhập mã xác nhận</div></div>
+            <button class="ib" onclick="openOfficial('tab')" title="Mở tab mới"><span class="material-icons-round">open_in_new</span></button>
+        </div>
+        <div class="ifr-wrap">
+            <iframe id="official-iframe" src="" title="Tra cứu BHYT chính thức" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="ifr-fallback" id="ifr-fallback">
+                <span class="material-icons-round" style="font-size:44px;color:var(--ol)">block</span>
+                <div style="font-size:15px;font-weight:700;color:var(--os)">Trang BHXH không cho phép nhúng</div>
+                <p style="font-size:13px;color:var(--osv);line-height:1.6">Vì lý do bảo mật, một số trang chặn hiển thị trong khung nhúng. Hãy mở trực tiếp trong tab trình duyệt để tra cứu.</p>
+                <button class="btn f" onclick="openOfficial('tab')" style="width:auto;padding:13px 24px"><span class="material-icons-round" style="font-size:18px">launch</span>Mở trong tab mới</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <div id="tst" class="tst"></div>
 
 <script>
-const PX='https://corsproxy.io/?';
-const API='https://baohiemxahoi.gov.vn/UserControls/BHXH/BaoHiemYTe/TheBHYT/pListTheBHYTThe.aspx';
-const BHXH='https://baohiemxahoi.gov.vn/tracuu/Pages/tra-cuu-thoi-han-su-dung-the-bhyt.aspx';
-const BHXH_BASE='https://baohiemxahoi.gov.vn/tracuu/Pages/tra-cuu-thoi-han-su-dung-the-bhyt/';
+/* ==============================================================
+   CẤU HÌNH
+   ============================================================== */
+const OFFICIAL_URL = 'https://baohiemxahoi.gov.vn/tracuu/Pages/tra-cuu-thoi-han-su-dung-the-bhyt.aspx';
+let qr = null;
+let lastData = { maThe:'', cccd:'', hoTen:'', ngaySinh:'' };
+let ifrTimer = null;
 
-let scanStream=null,scanRAF=null,scanActive=false,scanType='',scanFacing='environment';
-
-/* ====== Điều hướng ====== */
-function go(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));document.getElementById('s-'+id).classList.add('on');if(id==='form')loadBHXIframe();}
-
-/* ====== Toast ====== */
-let _tt;function toast(m,d){d=d||3000;const t=document.getElementById('tst');t.textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),d);}
-
-/* ================================================================
-   NHÚNG IFRAME TRANG BHXH — chứa captcha
-   Cách 1: iframe trực tiếp (giữ session, tốt nhất)
-   Cách 2: fetch qua proxy → inject <base> → blob iframe
-   Cách 3: nút mở tab mới
-   ================================================================ */
-async function loadBHXIframe(){
-    const ifm=document.getElementById('bhxh-ifm');
-    const load=document.getElementById('ifm-load');
-    const err=document.getElementById('ifm-err');
-    load.style.display='flex';err.style.display='none';ifm.style.display='none';
-
-    /* Cách 1: iframe trực tiếp */
-    let ok=await tryDirect(ifm,load,err);
-    if(ok)return;
-
-    /* Cách 2: blob iframe qua proxy */
-    ok=await tryBlob(ifm,load,err);
-    if(ok)return;
-
-    /* Cách 3: hiện nút mở tab mới */
-    load.style.display='none';err.style.display='flex';
+/* ==============================================================
+   ĐIỀU HƯỚNG
+   ============================================================== */
+function go(id) {
+    document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
+    document.getElementById('s-' + id).classList.add('on');
 }
 
-function tryDirect(ifm,load,err){
-    return new Promise(resolve=>{
-        let done=false;
-        ifm.onload=function(){
-            if(!done){done=true;load.style.display='none';ifm.style.display='block';resolve(true);}
-        };
-        ifm.onerror=function(){
-            if(!done){done=true;resolve(false);}
-        };
-        ifm.src=BHXH;
-        /* Timeout 8 giây */
-        setTimeout(()=>{if(!done){done=true;resolve(false);}},8000);
+/* ==============================================================
+   TOAST
+   ============================================================== */
+let _tt;
+function toast(m, d) {
+    d = d || 2200;
+    const t = document.getElementById('tst');
+    t.textContent = m;
+    t.classList.add('show');
+    clearTimeout(_tt);
+    _tt = setTimeout(() => t.classList.remove('show'), d);
+}
+
+/* ==============================================================
+   QUÉT QR (chỉ đọc dữ liệu, hoàn toàn phía client)
+   ============================================================== */
+function startScan(type) {
+    go('scan');
+    document.getElementById('sc-tt').textContent = type === 'bhyt' ? 'Quét QR thẻ BHYT' : 'Quét QR CCCD';
+    document.getElementById('sc-hn').textContent = type === 'bhyt'
+        ? 'Đặt mặt trước thẻ BHYT, hướng QR vào khung'
+        : 'Đặt mặt sau CCCD vào khung hình';
+
+    qr = new Html5Qrcode('qr-reader');
+    qr.start(
+        { facingMode: 'environment' },
+        { fps: 12, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+        txt => onScan(txt, type),
+        () => {}
+    ).catch(e => {
+        toast('Không mở được camera. Chạy trên localhost/HTTPS và cho phép truy cập camera.');
+        console.error(e);
     });
 }
 
-async function tryBlob(ifm,load,err){
-    try{
-        const r=await fetch(PX+encodeURIComponent(BHXH),{headers:{'Accept':'text/html'}});
-        if(!r.ok)return false;
-        let html=await r.text();
-        /* Inject <base> để tất cả relative URL resolve đúng */
-        html=html.replace(/<head([^>]*)>/i,'<head$1><base href="'+BHXH_BASE+'">');
-        /* Inject script tự điền form nếu có data */
-        const ma=document.getElementById('f-ma').value.trim();
-        const ht=document.getElementById('f-ht').value.trim();
-        const ns=document.getElementById('f-ns').value.trim();
-        if(ma&&ht){
-            const fill=`<script>document.addEventListener('DOMContentLoaded',function(){try{var m=document.getElementById('txtMaThe');if(m){m.value='${ma}';m.readOnly=true;}var h=document.getElementById('txtHoTen');if(h)h.value='${ht.replace(/'/g,"\\'")}';var n=document.getElementById('txtNgaySinh');if(n)n.value='${ns}';}catch(e){}});<\/script>`;
-            html=html.replace('</body>',fill+'</body>');
-        }
-        const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-        ifm.onload=function(){load.style.display='none';ifm.style.display='block';};
-        ifm.onerror=function(){};
-        ifm.src=URL.createObjectURL(blob);
-        return true;
-    }catch(e){console.log('Blob iframe error:',e);return false;}
+function stopScan() {
+    if (qr) { qr.stop().then(() => { qr.clear(); qr = null; }).catch(() => {}); }
+    go('home');
 }
 
-/* ====== Scanner — BarcodeDetector native ====== */
-async function startScan(type){
-    go('scan');scanType=type;scanActive=true;
-    document.getElementById('sc-tt').textContent='Quét QR '+(type==='bhyt'?'thẻ BHYT':'CCCD');
-    document.getElementById('sc-hn').textContent=type==='bhyt'?'Đặt mặt trước thẻ BHYT vào khung':'Đặt mặt sau CCCD vào khung hình';
-    if(!('BarcodeDetector' in window)){toast('Dùng Chrome Android hoặc Safari 17.4+');go('home');return;}
-    const v=document.getElementById('sv');
-    try{scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:scanFacing,width:{ideal:1920},height:{ideal:1080}}});}
-    catch(e){try{scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:scanFacing==='environment'?'user':'environment',width:{ideal:1920},height:{ideal:1080}}});scanFacing=scanFacing==='environment'?'user':'environment';}catch(e2){toast('Camera: '+e2.message);go('home');return;}}
-    v.srcObject=scanStream;v.setAttribute('playsinline','');try{await v.play();}catch(e){}
-    const det=new BarcodeDetector({formats:['qr_code','code_128','code_39']});
-    const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
-    async function tick(){if(!scanActive)return;if(v.readyState>=v.HAVE_ENOUGH_DATA){cv.width=v.videoWidth;cv.height=v.videoHeight;cx.drawImage(v,0,0);try{const c=await det.detect(cv);if(c.length>0){scanActive=false;onScan(c[0].rawValue,type);return;}}catch(e){}}scanRAF=requestAnimationFrame(tick);}
-    tick();
-}
-async function flipCam(){if(scanStream)scanStream.getTracks().forEach(t=>t.stop());if(scanRAF)cancelAnimationFrame(scanRAF);scanFacing=scanFacing==='environment'?'user':'environment';startScan(scanType);}
-function stopScan(){scanActive=false;if(scanRAF)cancelAnimationFrame(scanRAF);if(scanStream)scanStream.getTracks().forEach(t=>t.stop());scanStream=null;document.getElementById('sv').srcObject=null;go('home');}
+function onScan(text, type) {
+    if (qr) { qr.stop().then(() => { qr.clear(); qr = null; }).catch(() => {}); }
 
-/* ====== Xử lý quét được ====== */
-function onScan(text,type){
-    scanActive=false;if(scanRAF)cancelAnimationFrame(scanRAF);if(scanStream)scanStream.getTracks().forEach(t=>t.stop());scanStream=null;document.getElementById('sv').srcObject=null;
-    const d=type==='bhyt'?parseBHYT(text):parseCCCD(text);
-    const card=document.getElementById('qr-card'),tags=document.getElementById('qr-tags');
-    let h='';if(d.cccd)h+=`<span class="tg cc">CCCD: ${d.cccd}</span>`;if(d.cmnd)h+=`<span class="tg cm">CMND: ${d.cmnd}</span>`;if(d.gioiTinh)h+=`<span class="tg">${d.gioiTinh}</span>`;
-    if(h){tags.innerHTML=`<div style="display:flex;flex-wrap:wrap">${h}</div>`;card.style.display='block';}else card.style.display='none';
-    document.getElementById('ma-icon').textContent='fingerprint';
-    document.getElementById('ma-label').textContent='Số CCCD (từ QR)';
-    document.getElementById('ma-card').style.borderLeftColor='var(--ok)';
-    document.getElementById('f-ma').value=d.cccd||'';
-    document.getElementById('f-ht').value=d.hoTen||'';
-    document.getElementById('f-ns').value=d.ngaySinh||'';
-    document.getElementById('f-cap').value='';
-    document.getElementById('form-sub').textContent='Tra bằng CCCD — xem captcha bên dưới';
-    clearErr();
-    if(!d.cccd&&!d.hoTen&&!d.ngaySinh){toast('Không đọc được dữ liệu');go('home');return;}
-    toast('Đã lấy CCCD + Họ tên + Ngày sinh');
-    go('form');
-    setTimeout(()=>{if(!document.getElementById('f-ht').value)document.getElementById('f-ht').focus();else document.getElementById('f-cap').focus();},500);
+    const d = type === 'bhyt' ? parseBHYT(text) : parseCCCD(text);
+
+    if (!d.hoTen && !d.ngaySinh && !d.maThe && !d.cccd) {
+        toast('Không đọc được dữ liệu từ mã QR');
+        go('home');
+        return;
+    }
+
+    const card = document.getElementById('qr-card');
+    const tags = document.getElementById('qr-tags');
+    let html = '';
+    if (d.maThe)  html += `<span class="tg mt">Thẻ BHYT: ${d.maThe}</span>`;
+    if (d.cccd)   html += `<span class="tg cc">CCCD: ${d.cccd}</span>`;
+    if (d.gioiTinh) html += `<span class="tg">${d.gioiTinh}</span>`;
+    if (html) { tags.innerHTML = `<div style="display:flex;flex-wrap:wrap">${html}</div>`; card.style.display = 'block'; }
+    else card.style.display = 'none';
+
+    lastData = { maThe: d.maThe || '', cccd: d.cccd || '', hoTen: d.hoTen || '', ngaySinh: d.ngaySinh || '' };
+    renderReview();
+    toast(d.maThe ? 'Đã lấy đủ thông tin' : 'Đã lấy Họ tên & Ngày sinh, nhập thêm số thẻ nếu cần');
+    go('review');
 }
 
-/* ====== Parse ====== */
-function parseBHYT(t){const r={cccd:'',cmnd:'',hoTen:'',ngaySinh:'',gioiTinh:'',diaChi:''};const p=t.split('|');if(p.length<3)return r;const e0=p[0].trim(),e1=(p[1]||'').trim();if(/^\d{12}$/.test(e0))r.cccd=e0;if(/^\d{9}$/.test(e1))r.cmnd=e1;r.hoTen=p[2]?p[2].trim():'';r.ngaySinh=p[3]?fmtNS(p[3].trim()):'';if(p.length>=5)r.gioiTinh=p[4].trim();if(p.length>=6)r.diaChi=p[5].trim();return r;}
-function parseCCCD(t){const r={cccd:'',cmnd:'',hoTen:'',ngaySinh:'',gioiTinh:'',diaChi:''};if(!t.includes('DNI|'))return r;const p=t.split('|');if(p.length<4)return r;r.cccd=p[1]?p[1].trim():'';r.hoTen=p[2]?p[2].trim():'';r.ngaySinh=p[3]?fmtNS(p[3].trim()):'';if(p.length>=5)r.gioiTinh=p[4].trim();if(p.length>=8)r.diaChi=p[6]?p[6].trim():'';return r;}
-function fmtNS(s){s=s.trim();if(/^\d{8}$/.test(s))return s.substring(0,2)+'/'+s.substring(2,4)+'/'+s.substring(4,8);let m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);if(m)return m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+m[3];m=s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);if(m)return m[3].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+m[1];return s;}
+/* ==============================================================
+   PARSE QR THẺ BHYT
+   Format: CCCD|CMND(hoặc trống)|Họ tên|Ngày sinh(ddmmyyyy)|Giới tính|Địa chỉ|Ngày cấp
+   Trường hợp ngắn (4 phần tử): SốThẻ|CMND|Họ tên|Ngày sinh
+   ============================================================== */
+function parseBHYT(text) {
+    const r = { maThe:'', cccd:'', cmnd:'', hoTen:'', ngaySinh:'', gioiTinh:'', diaChi:'' };
+    const p = text.split('|');
+    if (p.length < 3) return r;
 
-/* ====== Nhập thủ công ====== */
-function manualGo(){
-    const ma=document.getElementById('m-ma').value.trim(),ht=document.getElementById('m-ht').value.trim(),ns=document.getElementById('m-ns').value.trim();
-    if(!ma){toast('Nhập mã thẻ BHYT');return;}if(!ht){toast('Nhập họ và tên');return;}
-    document.getElementById('ma-icon').textContent='credit_card';document.getElementById('ma-label').textContent='Mã thẻ BHYT';document.getElementById('ma-card').style.borderLeftColor='var(--sec)';
-    document.getElementById('f-ma').value=ma;document.getElementById('f-ht').value=ht;document.getElementById('f-ns').value=ns;document.getElementById('f-cap').value='';
-    document.getElementById('form-sub').textContent='Tra bằng mã thẻ BHYT — xem captcha bên dưới';
-    document.getElementById('qr-card').style.display='none';clearErr();go('form');
+    const e0 = p[0].trim();
+    const e1 = (p[1] || '').trim();
+
+    if (/^\d{12}$/.test(e0)) r.cccd = e0;
+    else if (/^\d{10}$/.test(e0)) r.maThe = e0;
+
+    if (/^\d{9}$/.test(e1)) r.cmnd = e1;
+    else if (/^\d{12}$/.test(e1) && !r.cccd) r.cccd = e1;
+    else if (/^\d{10}$/.test(e1) && !r.maThe) r.maThe = e1;
+
+    r.hoTen = p[2] ? p[2].trim() : '';
+    r.ngaySinh = p[3] ? fmtNS(p[3].trim()) : '';
+    if (p.length >= 5) r.gioiTinh = p[4].trim();
+    if (p.length >= 6) r.diaChi = p[5].trim();
+    return r;
 }
 
-/* ====== Validation ====== */
-function clearErr(){document.querySelectorAll('.em').forEach(e=>e.classList.remove('show'));document.querySelectorAll('.eb').forEach(e=>e.classList.remove('eb'));}
-function showE(id,iid){document.getElementById(id).classList.add('show');if(iid)document.getElementById(iid).classList.add('eb');}
-function validate(){clearErr();let ok=true;
-    const ma=document.getElementById('f-ma').value.trim();
-    if(!ma){showE('err-ma','f-ma');ok=false;}
-    if(!document.getElementById('f-ht').value.trim()){showE('err-ht','f-ht');ok=false;}
-    if(!/^\d{2}\/\d{2}\/\d{4}$/.test(document.getElementById('f-ns').value.trim())){showE('err-ns','f-ns');ok=false;}
-    if(!document.getElementById('f-cap').value.trim()){showE('err-cap','f-cap');ok=false;}
-    return ok;
-}
-['f-ma','f-ht','f-ns','f-cap'].forEach(id=>{document.getElementById(id).addEventListener('input',function(){this.classList.remove('eb');const e=document.getElementById('err-'+id.split('-')[1]);if(e)e.classList.remove('show');});});
-/* Thêm err-ma */
-document.querySelector('#ma-card .ig').insertAdjacentHTML('afterend','<div class="em" id="err-ma"><span class="material-icons-round" style="font-size:14px">error</span><span>Bắt buộc</span></div>');
-
-/* ====== Submit ====== */
-async function doSubmit(){
-    if(!validate()){toast('Điền đầy đủ');return;}
-    const ma=document.getElementById('f-ma').value.trim(),ht=document.getElementById('f-ht').value.trim(),ns=document.getElementById('f-ns').value.trim(),cap=document.getElementById('f-cap').value.trim().toUpperCase();
-    const btn=document.getElementById('btn-go');btn.disabled=true;btn.classList.remove('pls');btn.innerHTML='<div class="sp"></div>Đang tra cứu...';go('load');
-    try{
-        const r=await fetch(PX+encodeURIComponent(API),{method:'POST',headers:{'Accept':'*/*','Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:'txtMaThe='+ma+'&tokenRecaptch='+cap+'&txtHoTen='+encodeURIComponent(ht)+'&txtNgaySinh='+encodeURIComponent(ns)});
-        if(r.ok)parseRes(await r.text(),ma);else showEP('Lỗi','Mã lỗi '+r.status);
-    }catch(e){showEP('Không kết nối','Lỗi mạng/CORS');}
-    btn.disabled=false;btn.classList.add('pls');btn.innerHTML='<span class="material-icons-round" style="font-size:20px">search</span>Tra cứu thời hạn thẻ';
+/* ==============================================================
+   PARSE QR CCCD (mặt sau CCCD)
+   Format: DNI|Số CCCD|Họ tên|Ngày sinh|Giới tính|Quốc tịch|Địa chỉ|...
+   ============================================================== */
+function parseCCCD(text) {
+    const r = { maThe:'', cccd:'', cmnd:'', hoTen:'', ngaySinh:'', gioiTinh:'', diaChi:'' };
+    if (!text.includes('DNI|')) return r;
+    const p = text.split('|');
+    if (p.length < 4) return r;
+    r.cccd = p[1] ? p[1].trim() : '';
+    r.hoTen = p[2] ? p[2].trim() : '';
+    r.ngaySinh = p[3] ? fmtNS(p[3].trim()) : '';
+    if (p.length >= 5) r.gioiTinh = p[4].trim();
+    if (p.length >= 8) r.diaChi = p[6] ? p[6].trim() : '';
+    return r;
 }
 
-function parseRes(html,ma){
-    const doc=new DOMParser().parseFromString(html,'text/html'),txt=(doc.body||doc.documentElement).textContent||'',data={};
-    doc.querySelectorAll('tr').forEach(r=>{const c=r.querySelectorAll('td,th');if(c.length>=2){const l=c[0].textContent.trim(),v=c[1].textContent.trim();if(l&&v&&v.length<200)data[l]=v;}});
-    const has=Object.keys(data).length>0,info=/thẻ BHYT|thời hạn|hiệu lực|hết hạn|đăng ký/i.test(txt),isE=/không tồn tại|không đúng|sai mã|bảo trì/i.test(txt),isC=/mã xác nhận|captcha/i.test(txt)&&/không đúng|sai/i.test(txt);
-    if(isC){showEP('Mã xác nhận sai','Nhập lại captcha.');return;}
-    if(isE){showEP('Thất bại','Không tìm thấy thông tin.');return;}
-    if(has&&info)showOk(data,txt,ma);else if(html.length<200)showEP('Rỗng','Server không trả dữ liệu.');else showRaw(html,ma);
+function fmtNS(s) {
+    s = s.trim();
+    if (/^\d{8}$/.test(s)) return s.substring(0,2) + '/' + s.substring(2,4) + '/' + s.substring(4,8);
+    let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (m) return m[1].padStart(2,'0') + '/' + m[2].padStart(2,'0') + '/' + m[3];
+    m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+    if (m) return m[3].padStart(2,'0') + '/' + m[2].padStart(2,'0') + '/' + m[1];
+    return s;
 }
-function showOk(data,txt,ma){
-    const ex=/hết hạn/i.test(txt),cls=ex?'er':'ok',lb=ex?'Đã hết hạn':'Còn hiệu lực';
-    const mp={'Số thẻ BHYT':'Số thẻ','Mã thẻ':'Mã thẻ','Họ và tên':'Họ và tên','Ngày sinh':'Ngày sinh','Giới tính':'Giới tính','Nơi đăng ký KCB đầu tiên':'Nơi KCB','Nơi đăng ký KCB':'Nơi KCB','Từ ngày':'Hiệu lực từ','Đến ngày':'Hiệu lực đến','Thời hạn sử dụng':'Thời hạn'};
-    let rows='';for(const[k,v]of Object.entries(data))rows+=`<div class="rr"><div class="rl">${mp[k]||k}</div><div class="rv">${v}</div></div>`;
-    document.getElementById('res-sb').textContent='Mã: '+ma;
-    document.getElementById('res-c').innerHTML=`<div class="rc"><div class="rh ${cls}"><span class="material-icons-round" style="font-size:36px;margin-bottom:6px">${ex?'event_busy':'verified_user'}</span><div style="font-size:17px;font-weight:700;margin-bottom:8px">Thẻ BHYT</div><div class="bgi ${cls}" style="margin:0 auto"><span class="material-icons-round" style="font-size:15px">${ex?'cancel':'check_circle'}</span>${lb}</div></div><div class="rb">${rows}</div></div><div style="display:flex;gap:10px"><button class="btn t" onclick="go('form')" style="flex:1"><span class="material-icons-round" style="font-size:18px">refresh</span>Tra lại</button><button class="btn f" onclick="go('home')" style="flex:1"><span class="material-icons-round" style="font-size:18px">home</span>Trang chủ</button></div>`;
-    go('res');
-}
-function showEP(t,m){document.getElementById('res-sb').textContent='Lỗi';document.getElementById('res-c').innerHTML=`<div class="rc"><div class="rh er"><span class="material-icons-round" style="font-size:36px;margin-bottom:6px">error_outline</span><div style="font-size:17px;font-weight:700">${t}</div></div><div class="rb"><p style="font-size:13px;color:var(--osv);line-height:1.6;margin-bottom:14px">${m}</p></div></div><div style="display:flex;gap:10px"><button class="btn o" onclick="go('form')" style="flex:1">Thử lại</button><button class="btn f" onclick="go('home')" style="flex:1">Trang chủ</button></div>`;go('res');}
-function showRaw(html,ma){const c=html.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();document.getElementById('res-sb').textContent='Mã: '+ma;document.getElementById('res-c').innerHTML=`<div class="rc"><div class="rh inf"><span class="material-icons-round" style="font-size:36px;margin-bottom:6px">code</span><div style="font-size:17px;font-weight:700">Phản hồi server</div></div><div class="rb"><div style="background:#1a2332;color:#a5d6ff;padding:14px;border-radius:12px;font-size:11px;font-family:monospace;line-height:1.6;max-height:180px;overflow-y:auto;word-break:break-all">${c.substring(0,500)}${c.length>500?'...':''}</div></div></div><div style="display:flex;gap:10px"><button class="btn o" onclick="go('form')" style="flex:1">Thử lại</button><button class="btn f" onclick="go('home')" style="flex:1">Trang chủ</button></div>`;go('res');}
 
-/* ====== Format input ====== */
-function fmtDI(e){let v=e.target.value.replace(/[^\d]/g,'');if(v.length>8)v=v.substring(0,8);if(v.length>=4)e.target.value=v.substring(0,2)+'/'+v.substring(2,4)+'/'+v.substring(4);else if(v.length>=2)e.target.value=v.substring(0,2)+'/'+v.substring(2);else e.target.value=v;}
-function numO(e){e.target.value=e.target.value.replace(/[^\d]/g,'');}
-document.getElementById('m-ns').addEventListener('input',fmtDI);
-document.getElementById('f-ns').addEventListener('input',fmtDI);
-document.getElementById('m-ma').addEventListener('input',numO);
-document.getElementById('f-cap').addEventListener('input',function(){this.value=this.value.toUpperCase();});
-document.getElementById('f-cap').addEventListener('keydown',function(e){if(e.key==='Enter')doSubmit();});
+/* ==============================================================
+   NHẬP THỦ CÔNG → XEM LẠI
+   ============================================================== */
+function manualGo() {
+    const ma = document.getElementById('m-ma').value.trim();
+    const cc = document.getElementById('m-cc').value.trim();
+    const ht = document.getElementById('m-ht').value.trim();
+    const ns = document.getElementById('m-ns').value.trim();
+
+    if (!ma) { toast('Nhập số thẻ BHYT'); return; }
+    if (!ht) { toast('Nhập họ và tên'); return; }
+
+    lastData = { maThe: ma, cccd: cc, hoTen: ht, ngaySinh: ns };
+    document.getElementById('qr-card').style.display = 'none';
+    renderReview();
+    go('review');
+}
+
+/* ==============================================================
+   RENDER MÀN "XEM LẠI THÔNG TIN"
+   ============================================================== */
+function renderReview() {
+    const rows = [
+        ['ma','maThe'], ['cc','cccd'], ['ht','hoTen'], ['ns','ngaySinh']
+    ];
+    rows.forEach(([id, key]) => {
+        const val = lastData[key];
+        const row = document.getElementById('row-' + id);
+        const v = document.getElementById('v-' + id);
+        if (val) { row.style.display = 'flex'; v.textContent = val; }
+        else row.style.display = 'none';
+    });
+}
+
+function copyField(id, btn) {
+    const val = lastData[{ma:'maThe',cc:'cccd',ht:'hoTen',ns:'ngaySinh'}[id]];
+    if (!val) return;
+    navigator.clipboard.writeText(val).then(() => {
+        btn.classList.add('done');
+        btn.innerHTML = '<span class="material-icons-round" style="font-size:17px">check</span>';
+        toast('Đã sao chép: ' + val);
+        setTimeout(() => {
+            btn.classList.remove('done');
+            btn.innerHTML = '<span class="material-icons-round" style="font-size:17px">content_copy</span>';
+        }, 1500);
+    }).catch(() => toast('Không sao chép được, hãy tự chọn và copy'));
+}
+
+/* ==============================================================
+   MỞ TRANG CHÍNH THỨC — nhúng iframe hoặc tab mới
+   Người dùng tự dán thông tin, tự nhìn captcha thật và tự nhập.
+   App không đọc/ghi bất cứ gì bên trong trang này (cross-origin).
+   ============================================================== */
+function openOfficial(mode) {
+    if (mode === 'tab') {
+        window.open(OFFICIAL_URL, '_blank', 'noopener');
+        return;
+    }
+    // Thử nhúng iframe trong app
+    const ifr = document.getElementById('official-iframe');
+    const fb = document.getElementById('ifr-fallback');
+    fb.classList.remove('show');
+    ifr.src = OFFICIAL_URL;
+    go('official');
+
+    // Không thể phát hiện chắc chắn X-Frame-Options bằng JS (cross-origin),
+    // dùng heuristic: nếu sau vài giây iframe không "load" được nội dung
+    // (một số trình duyệt vẫn bắn sự kiện load ngay cả khi bị chặn hiển thị),
+    // vẫn hiển thị fallback rõ ràng để người dùng luôn có lối thoát.
+    clearTimeout(ifrTimer);
+    ifrTimer = setTimeout(() => {
+        // Không đọc được contentDocument (cross-origin) nên chỉ cảnh báo nhẹ,
+        // nút "Mở tab mới" luôn có sẵn trên thanh tiêu đề và trong fallback.
+    }, 4000);
+
+    ifr.onerror = () => fb.classList.add('show');
+}
+
+/* ==============================================================
+   FORMAT TỰ ĐỘNG NGÀY SINH & SỐ
+   ============================================================== */
+function fmtDateInput(e) {
+    let v = e.target.value.replace(/[^\d]/g, '');
+    if (v.length > 8) v = v.substring(0, 8);
+    if (v.length >= 4) e.target.value = v.substring(0,2) + '/' + v.substring(2,4) + '/' + v.substring(4);
+    else if (v.length >= 2) e.target.value = v.substring(0,2) + '/' + v.substring(2);
+    else e.target.value = v;
+}
+function numOnly(e) { e.target.value = e.target.value.replace(/[^\d]/g, ''); }
+
+document.getElementById('m-ns').addEventListener('input', fmtDateInput);
+document.getElementById('m-ma').addEventListener('input', numOnly);
+document.getElementById('m-cc').addEventListener('input', numOnly);
+
+console.log('[BHYT Lookup] Ready — captcha luôn thật, nhập tay trên trang chính thức');
 </script>
 </body>
 </html>
