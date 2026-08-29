@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tra cứu thẻ BHYT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root{
+            --pri:#00695C;--pri-l:#4DB6AC;--pri-d:#004D40;--pri-c:#B2DFDB;
+            --sec:#E65100;--sec-c:#FFE0B2;
+            --sf:#FAFDF9;--sfv:#E0EDE8;--bg:#EFF5F1;
+            --err:#C62828;--err-c:#FFCDD2;--ok:#2E7D32;--ok-c:#C8E6C9;
+            --ol:#8AAEA2;--olv:#C4D8D0;--os:#1A2E28;--osv:#3F5F56;
+            --sh:rgba(0,105,92,.12);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Be Vietnam Pro',sans-serif}
+        body{background:#0f1923;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:16px;overflow:hidden}
+        body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);opacity:.13;pointer-events:none}
+        body::before{width:380px;height:380px;background:var(--pri);top:-100px;left:-80px;animation:fb 12s ease-in-out infinite alternate}
+        body::after{width:320px;height:320px;background:var(--sec);bottom:-60px;right:-60px;animation:fb 10s ease-in-out infinite alternate-reverse}
+        @keyframes fb{0%{transform:translate(0,0) scale(1)}100%{transform:translate(35px,25px) scale(1.12)}}
+
+        .ph{width:100%;max-width:420px;height:92vh;max-height:880px;background:var(--bg);border-radius:36px;overflow:hidden;box-shadow:0 30px 90px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.06);display:flex;flex-direction:column}
+        @media(max-width:480px){body{padding:0}.ph{max-width:100%;height:100vh;max-height:none;border-radius:0;box-shadow:none}}
+
+        .bar{background:linear-gradient(135deg,var(--pri),var(--pri-d));color:#fff;padding:14px 8px;display:flex;align-items:center;gap:8px;flex-shrink:0;z-index:10}
+        .bt{font-size:18px;font-weight:700;letter-spacing:-.3px}
+        .bs{font-size:11px;opacity:.75}
+        .bi{width:40px;height:40px;background:rgba(255,255,255,.14);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .ib{width:40px;height:40px;border-radius:20px;border:none;background:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0}
+        .ib:hover{background:rgba(255,255,255,.12)}
+
+        .cnt{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px 16px;scroll-behavior:smooth}
+        .cnt::-webkit-scrollbar{width:3px}
+        .cnt::-webkit-scrollbar-thumb{background:var(--olv);border-radius:2px}
+
+        .cd{background:var(--sf);border-radius:20px;padding:20px;margin-bottom:14px;box-shadow:0 1px 3px var(--sh);border:1px solid var(--olv);transition:box-shadow .25s}
+
+        .ig{margin-bottom:14px}
+        .il{display:block;font-size:11px;font-weight:600;color:var(--osv);margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
+        .if{width:100%;padding:13px 14px;border:2px solid var(--olv);border-radius:14px;font-size:15px;font-family:inherit;color:var(--os);background:var(--sf);transition:all .2s;outline:0}
+        .if:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(0,105,92,.12)}
+        .if::placeholder{color:var(--ol)}
+        .if.auto{background:var(--pri-c);border-color:transparent;font-weight:600}
+        .if[readonly]{cursor:default}
+
+        .btn{width:100%;padding:15px;border:none;border-radius:16px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
+        .btn.f{background:linear-gradient(135deg,var(--pri),var(--pri-l));color:#fff;box-shadow:0 4px 14px rgba(0,105,92,.3)}
+        .btn.f:hover{box-shadow:0 6px 22px rgba(0,105,92,.4);transform:translateY(-1px)}
+        .btn.f:active{transform:translateY(0)}
+        .btn.t{background:var(--pri-c);color:var(--pri-d)}
+        .btn.o{background:0;color:var(--pri);border:2px solid var(--ol)}
+        .btn.o:hover{background:var(--pri-c);border-color:var(--pri-l)}
+        .btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+        .sp{width:20px;height:20px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:ro .7s linear infinite}
+        @keyframes ro{to{transform:rotate(360deg)}}
+
+        .fc{background:var(--sf);border-radius:20px;padding:20px 16px;border:1px solid var(--olv);cursor:pointer;transition:all .25s cubic-bezier(.2,0,0,1);display:flex;align-items:center;gap:14px;margin-bottom:10px}
+        .fc:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--sh);border-color:var(--pri-l)}
+        .fc:active{transform:scale(.98)}
+        .fi{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .fi.g{background:linear-gradient(135deg,#00695C,#4DB6AC);color:#fff}
+        .fi.a{background:linear-gradient(135deg,#E65100,#FFB74D);color:#fff}
+        .ft{font-size:15px;font-weight:700;color:var(--os);margin-bottom:2px}
+        .fd{font-size:12px;color:var(--osv);line-height:1.4}
+
+        .dv{display:flex;align-items:center;gap:12px;margin:18px 0}
+        .dl{flex:1;height:1px;background:var(--olv)}
+        .dt{font-size:11px;color:var(--ol);font-weight:600;letter-spacing:.5px}
+
+        .sw{flex:1;position:relative;background:#000;overflow:hidden}
+        #qr-reader{width:100%!important;height:100%!important}
+        #qr-reader video{object-fit:cover!important}
+        .sov{position:absolute;inset:0;pointer-events:none;z-index:5}
+        .sfr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:250px;height:250px}
+        .sc{position:absolute;width:28px;height:28px;border-color:var(--pri-l);border-style:solid;border-width:0}
+        .sc.tl{top:0;left:0;border-top-width:4px;border-left-width:4px;border-top-left-radius:11px}
+        .sc.tr{top:0;right:0;border-top-width:4px;border-right-width:4px;border-top-right-radius:11px}
+        .sc.bl{bottom:0;left:0;border-bottom-width:4px;border-left-width:4px;border-bottom-left-radius:11px}
+        .sc.br{bottom:0;right:0;border-bottom-width:4px;border-right-width:4px;border-bottom-right-radius:11px}
+        .sln{position:absolute;left:6px;right:6px;height:3px;background:linear-gradient(90deg,transparent,var(--pri-l),transparent);border-radius:2px;animation:sm 2.2s ease-in-out infinite;box-shadow:0 0 14px var(--pri-l)}
+        @keyframes sm{0%,100%{top:6px}50%{top:calc(100% - 9px)}}
+        .shn{position:absolute;bottom:70px;left:0;right:0;text-align:center;color:#fff;font-size:14px;font-weight:500;text-shadow:0 1px 6px rgba(0,0,0,.6);z-index:6}
+
+        .cr{display:flex;gap:10px;align-items:flex-end}
+        .ci{flex-shrink:0;width:118px;height:46px;border-radius:12px;overflow:hidden;border:2px solid var(--olv);background:var(--sfv);position:relative;cursor:pointer}
+        .ci img{width:100%;height:100%;object-fit:cover}
+        .cb{position:absolute;top:2px;right:2px;width:22px;height:22px;border-radius:7px;background:rgba(0,0,0,.4);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+        .cb:hover{background:rgba(0,0,0,.6)}
+
+        .rc{background:var(--sf);border-radius:20px;overflow:hidden;border:1px solid var(--olv);margin-bottom:14px}
+        .rh{padding:22px 20px;text-align:center;color:#fff}
+        .rh.ok{background:linear-gradient(135deg,#2E7D32,#1B5E20)}
+        .rh.er{background:linear-gradient(135deg,#C62828,#8E0000)}
+        .rh.inf{background:linear-gradient(135deg,var(--pri),var(--pri-d))}
+        .rb{padding:16px 20px}
+        .rr{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--olv)}
+        .rr:last-child{border-bottom:none}
+        .rl{font-size:12px;color:var(--osv);font-weight:500;flex-shrink:0;max-width:42%}
+        .rv{font-size:13px;color:var(--os);font-weight:600;text-align:right;word-break:break-word}
+        .bg{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700}
+        .bg.ok{background:var(--ok-c);color:var(--ok)}
+        .bg.er{background:var(--err-c);color:var(--err)}
+
+        .in{background:var(--pri-c);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
+        .in .material-icons-round{color:var(--pri);font-size:18px;margin-top:1px;flex-shrink:0}
+        .in p{font-size:12px;color:var(--pri-d);line-height:1.5}
+
+        .lw{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px}
+        .spn{width:48px;height:48px;border:4px solid var(--olv);border-top-color:var(--pri);border-radius:50%;animation:ro .8s linear infinite}
+        .lt{margin-top:20px;font-size:14px;color:var(--osv);font-weight:500}
+
+        .tst{position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--os);color:var(--sf);padding:13px 22px;border-radius:14px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:all .3s cubic-bezier(.2,0,0,1);max-width:88%;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.35)}
+        .tst.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+        .scr{display:none;animation:fu .3s ease}
+        .scr.on{display:flex;flex-direction:column;height:100%}
+        @keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+        @keyframes plr{0%{box-shadow:0 4px 14px rgba(0,105,92,.3),0 0 0 0 rgba(0,105,92,.25)}70%{box-shadow:0 4px 14px rgba(0,105,92,.3),0 0 0 10px rgba(0,105,92,0)}100%{box-shadow:0 4px 14px rgba(0,105,92,.3),0 0 0 0 rgba(0,105,92,0)}}
+        .pls{animation:plr 2.5s infinite}
+
+        @keyframes shm{0%{background-position:-200px 0}100%{background-position:200px 0}}
+        .shm{background:linear-gradient(90deg,#e8ede8 25%,#dce5dc 50%,#e8ede8 75%);background-size:400px 100%;animation:shm 1.5s infinite}
+
+        .tg{display:inline-flex;align-items:center;gap:4px;background:var(--sfv);padding:3px 10px;border-radius:8px;font-size:11px;color:var(--osv);font-weight:500;margin:0 4px 4px 0}
+        .tg.cc{background:#E8F5E9;color:#2E7D32}
+        .tg.cm{background:#FFF3E0;color:#E65100}
+        .tg.mt{background:#E3F2FD;color:#0D47A1}
+
+        .err-msg{color:var(--err);font-size:11px;margin-top:4px;display:none;align-items:center;gap:3px}
+        .err-msg.show{display:flex}
+        .if.err-border{border-color:var(--err)!important}
+    </style>
+</head>
+<body>
+<div class="ph">
+
+    <!-- ==================== TRANG CHỦ ==================== -->
+    <div id="s-home" class="scr on">
+        <div class="bar">
+            <div class="bi"><span class="material-icons-round" style="font-size:22px">health_and_safety</span></div>
+            <div style="flex:1"><div class="bt">Tra cứu BHYT</div><div class="bs">Bảo hiểm Xã hội Việt Nam</div></div>
+        </div>
+        <div class="cnt">
+            <div style="text-align:center;margin-bottom:24px">
+                <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--pri),var(--pri-l));border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 8px 24px rgba(0,105,92,.28)">
+                    <span class="material-icons-round" style="font-size:32px;color:#fff">card_membership</span>
+                </div>
+                <h1 style="font-size:21px;font-weight:800;color:var(--os);margin-bottom:4px">Kiểm tra thẻ BHYT</h1>
+                <p style="font-size:13px;color:var(--osv);line-height:1.5">Quét QR thẻ BHYT hoặc CCCD để điền thông tin tự động</p>
+            </div>
+
+            <div class="fc" onclick="startScan('bhyt')">
+                <div class="fi g"><span class="material-icons-round" style="font-size:26px">qr_code_scanner</span></div>
+                <div style="flex:1"><div class="ft">Quét QR thẻ BHYT</div><div class="fd">Lấy CCCD, Họ tên, Ngày sinh từ QR trên thẻ</div></div>
+                <span class="material-icons-round" style="color:var(--ol)">chevron_right</span>
+            </div>
+            <div class="fc" onclick="startScan('cccd')">
+                <div class="fi a"><span class="material-icons-round" style="font-size:26px">badge</span></div>
+                <div style="flex:1"><div class="ft">Quét QR CCCD</div><div class="fd">Lấy Họ tên, Ngày sinh từ mặt sau CCCD</div></div>
+                <span class="material-icons-round" style="color:var(--ol)">chevron_right</span>
+            </div>
+
+            <div class="dv"><div class="dl"></div><div class="dt">HOẶC NHẬP THỦ CÔNG</div><div class="dl"></div></div>
+
+            <div class="cd">
+                <div class="ig"><label class="il">Số thẻ BHYT <span style="color:var(--err)">*</span></label><input type="text" id="m-ma" class="if" placeholder="10 hoặc 12 số trên thẻ BHYT" maxlength="15" inputmode="numeric"></div>
+                <div class="ig"><label class="il">Số CCCD</label><input type="text" id="m-cc" class="if" placeholder="Số CCCD (nếu có)" maxlength="15" inputmode="numeric"></div>
+                <div class="ig"><label class="il">Họ và tên <span style="color:var(--err)">*</span></label><input type="text" id="m-ht" class="if" placeholder="Theo đúng thẻ BHYT"></div>
+                <div class="ig" style="margin-bottom:0"><label class="il">Ngày sinh <span style="color:var(--err)">*</span></label><input type="text" id="m-ns" class="if" placeholder="dd/mm/yyyy" maxlength="10"></div>
+            </div>
+            <button class="btn f" onclick="manualGo()"><span class="material-icons-round" style="font-size:20px">arrow_forward</span>Tiếp tục</button>
+
+            <div class="in" style="margin-top:14px">
+                <span class="material-icons-round">info</span>
+                <p><b>QR trên thẻ BHYT</b> chứa: CCCD | CMND(trống nếu chưa có) | Họ tên | Ngày sinh(ddmmyyyy) | Giới tính | Địa chỉ | Ngày cấp<br>Số thẻ BHYT thường <b>không có trong QR</b>, cần nhập thủ công.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== QUÉT MÃ ==================== -->
+    <div id="s-scan" class="scr">
+        <div class="bar" style="position:absolute;top:0;left:0;right:0;z-index:10;background:linear-gradient(to bottom,rgba(0,0,0,.55),transparent)">
+            <button class="ib" onclick="stopScan()" style="background:rgba(255,255,255,.12);backdrop-filter:blur(6px)"><span class="material-icons-round">arrow_back</span></button>
+            <div style="flex:1;text-align:center"><div class="bt" id="sc-tt">Quét QR</div></div>
+            <div style="width:40px"></div>
+        </div>
+        <div class="sw">
+            <div id="qr-reader"></div>
+            <div class="sov">
+                <div class="sfr">
+                    <div class="sc tl"></div><div class="sc tr"></div><div class="sc bl"></div><div class="sc br"></div>
+                    <div class="sln"></div>
+                </div>
+            </div>
+            <div class="shn" id="sc-hn">Đặt mã QR vào khung hình</div>
+        </div>
+    </div>
+
+    <!-- ==================== FORM TRA CỨU ==================== -->
+    <div id="s-form" class="scr">
+        <div class="bar">
+            <button class="ib" onclick="go('home')"><span class="material-icons-round">arrow_back</span></button>
+            <div><div class="bt">Thông tin tra cứu</div><div class="bs">Xác nhận và nhập mã xác nhận</div></div>
+        </div>
+        <div class="cnt">
+            <!-- Dữ liệu từ QR -->
+            <div class="cd" id="qr-card" style="border-left:4px solid var(--pri);display:none">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+                    <span class="material-icons-round" style="color:var(--pri);font-size:18px">qr_code_2</span>
+                    <span style="font-size:13px;font-weight:700;color:var(--pri)">Dữ liệu từ quét QR</span>
+                </div>
+                <div id="qr-tags"></div>
+            </div>
+
+            <!-- Số thẻ BHYT — TRƯỢNG TIÊN, BẮT BUỘC -->
+            <div class="cd" style="border-left:4px solid var(--sec)">
+                <div class="ig" style="margin-bottom:0">
+                    <label class="il" style="color:var(--sec)">Số thẻ BHYT <span style="color:var(--err)">*</span></label>
+                    <input type="text" id="f-ma" class="if" placeholder="Nhập số thẻ BHYT (10 hoặc 12 số)" maxlength="15" inputmode="numeric" style="font-size:18px;font-weight:700;letter-spacing:2px;text-align:center">
+                    <div class="err-msg" id="err-ma"><span class="material-icons-round" style="font-size:14px">error</span><span>Bắt buộc nhập số thẻ BHYT</span></div>
+                </div>
+            </div>
+
+            <!-- Số CCCD — tự động từ QR, có thể sửa -->
+            <div class="cd" id="cccd-card" style="display:none">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+                    <span class="material-icons-round" style="color:var(--ok);font-size:18px">fingerprint</span>
+                    <span style="font-size:13px;font-weight:700;color:var(--ok)">Số CCCD <span style="font-weight:400;color:var(--osv)">(từ QR, có thể sửa)</span></span>
+                </div>
+                <input type="text" id="f-cc" class="if auto" readonly placeholder="Chưa có dữ liệu CCCD">
+            </div>
+
+            <!-- Họ tên + Ngày sinh -->
+            <div class="cd">
+                <div class="ig">
+                    <label class="il">Họ và tên <span style="color:var(--err)">*</span></label>
+                    <input type="text" id="f-ht" class="if" placeholder="Họ tên theo thẻ BHYT">
+                    <div class="err-msg" id="err-ht"><span class="material-icons-round" style="font-size:14px">error</span><span>Bắt buộc nhập họ và tên</span></div>
+                </div>
+                <div class="ig" style="margin-bottom:0">
+                    <label class="il">Ngày sinh <span style="color:var(--err)">*</span></label>
+                    <input type="text" id="f-ns" class="if" placeholder="dd/mm/yyyy" maxlength="10">
+                    <div class="err-msg" id="err-ns"><span class="material-icons-round" style="font-size:14px">error</span><span>Định dạng dd/mm/yyyy</span></div>
+                </div>
+            </div>
+
+            <!-- Captcha -->
+            <div class="cd">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px">
+                    <span class="material-icons-round" style="color:var(--sec);font-size:18px">verified_user</span>
+                    <span style="font-size:13px;font-weight:700;color:var(--os)">Mã xác nhận <span style="color:var(--err)">*</span></span>
+                </div>
+                <div class="cr">
+                    <div class="ci" id="cap-w" onclick="loadCap()">
+                        <img id="cap-i" src="" alt="">
+                        <button class="cb" onclick="event.stopPropagation();loadCap()" title="Tải lại"><span class="material-icons-round" style="font-size:14px">refresh</span></button>
+                    </div>
+                    <div style="flex:1">
+                        <input type="text" id="f-cap" class="if" placeholder="Nhập mã" maxlength="6" style="text-transform:uppercase;letter-spacing:3px;font-weight:700;font-size:18px;text-align:center">
+                        <div class="err-msg" id="err-cap"><span class="material-icons-round" style="font-size:14px">error</span><span>Nhập mã xác nhận</span></div>
+                    </div>
+                </div>
+                <p style="font-size:11px;color:var(--ol);margin-top:8px">Nhấn vào ảnh để tải lại mã mới</p>
+            </div>
+
+            <button class="btn f pls" id="btn-go" onclick="doSubmit()">
+                <span class="material-icons-round" style="font-size:20px">search</span>Tra cứu thời hạn thẻ
+            </button>
+            <div style="height:16px"></div>
+        </div>
+    </div>
+
+    <!-- ==================== LOADING ==================== -->
+    <div id="s-load" class="scr">
+        <div class="bar">
+            <div class="bi"><span class="material-icons-round" style="font-size:22px">health_and_safety</span></div>
+            <div><div class="bt">Đang tra cứu</div><div class="bs">Vui lòng chờ...</div></div>
+        </div>
+        <div class="cnt"><div class="lw"><div class="spn"></div><div class="lt">Đang kết nối đến BHXH Việt Nam...</div></div></div>
+    </div>
+
+    <!-- ==================== KẾT QUẢ ==================== -->
+    <div id="s-res" class="scr">
+        <div class="bar">
+            <button class="ib" onclick="go('home')"><span class="material-icons-round">arrow_back</span></button>
+            <div><div class="bt">Kết quả tra cứu</div><div class="bs" id="res-sb"></div></div>
+        </div>
+        <div class="cnt" id="res-c"></div>
+    </div>
+</div>
+
+<div id="tst" class="tst"></div>
+
+<script>
+/* ==============================================================
+   CẤU HÌNH
+   ============================================================== */
+const PX = 'https://corsproxy.io/?';
+const API = 'https://baohiemxahoi.gov.vn/UserControls/BHXH/BaoHiemYTe/TheBHYT/pListTheBHYTThe.aspx';
+let qr = null;
+
+/* ==============================================================
+   ĐIỀU HƯỚNG
+   ============================================================== */
+function go(id) {
+    document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
+    document.getElementById('s-' + id).classList.add('on');
+    if (id === 'form') loadCap();
+}
+
+/* ==============================================================
+   TOAST
+   ============================================================== */
+let _tt;
+function toast(m, d) {
+    d = d || 3000;
+    const t = document.getElementById('tst');
+    t.textContent = m;
+    t.classList.add('show');
+    clearTimeout(_tt);
+    _tt = setTimeout(() => t.classList.remove('show'), d);
+}
+
+/* ==============================================================
+   QUÉT QR
+   ============================================================== */
+function startScan(type) {
+    go('scan');
+    document.getElementById('sc-tt').textContent = type === 'bhyt' ? 'Quét QR thẻ BHYT' : 'Quét QR CCCD';
+    document.getElementById('sc-hn').textContent = type === 'bhyt'
+        ? 'Đặt mặt trước thẻ BHYT, hướng QR vào khung'
+        : 'Đặt mặt sau CCCD vào khung hình';
+
+    qr = new Html5Qrcode('qr-reader');
+    qr.start(
+        { facingMode: 'environment' },
+        { fps: 12, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+        txt => onScan(txt, type),
+        () => {}
+    ).catch(e => {
+        toast('Không mở được camera. Chạy trên localhost/HTTPS và cho phép truy cập camera.');
+        console.error(e);
+    });
+}
+
+function stopScan() {
+    if (qr) { qr.stop().then(() => { qr.clear(); qr = null; }).catch(() => {}); }
+    go('home');
+}
+
+/* ==============================================================
+   XỬ LÝ KẾT QUẢ QUÉT
+   ============================================================== */
+function onScan(text, type) {
+    if (qr) { qr.stop().then(() => { qr.clear(); qr = null; }).catch(() => {}); }
+
+    let d;
+    if (type === 'bhyt') {
+        d = parseBHYT(text);
+    } else {
+        d = parseCCCD(text);
+    }
+
+    /* --- Hiển thị tags dữ liệu QR --- */
+    const card = document.getElementById('qr-card');
+    const tags = document.getElementById('qr-tags');
+    let html = '';
+    if (d.maThe)  html += `<span class="tg mt">Thẻ BHYT: ${d.maThe}</span>`;
+    if (d.cccd)   html += `<span class="tg cc">CCCD: ${d.cccd}</span>`;
+    if (d.cmnd)   html += `<span class="tg cm">CMND: ${d.cmnd}</span>`;
+    if (d.gioiTinh) html += `<span class="tg">${d.gioiTinh}</span>`;
+    if (d.diaChi) html += `<span class="tg">${d.diaChi}</span>`;
+
+    if (html) {
+        tags.innerHTML = `<div style="display:flex;flex-wrap:wrap">${html}</div>`;
+        card.style.display = 'block';
+    } else {
+        card.style.display = 'none';
+    }
+
+    /* --- Điền form --- */
+    // Số thẻ BHYT: chỉ điền nếu QR có chứa
+    document.getElementById('f-ma').value = d.maThe || '';
+
+    // CCCD: hiển thị ô riêng nếu có
+    const ccCard = document.getElementById('cccd-card');
+    if (d.cccd) {
+        ccCard.style.display = 'block';
+        document.getElementById('f-cc').value = d.cccd;
+    } else {
+        ccCard.style.display = 'none';
+    }
+
+    // Họ tên + Ngày sinh
+    document.getElementById('f-ht').value = d.hoTen || '';
+    document.getElementById('f-ns').value = d.ngaySinh || '';
+    document.getElementById('f-cap').value = '';
+
+    // Clear lỗi cũ
+    clearErrors();
+
+    if (!d.hoTen && !d.ngaySinh && !d.maThe && !d.cccd) {
+        toast('Không đọc được dữ liệu từ mã QR');
+        go('home');
+        return;
+    }
+
+    // Thông báo phù hợp
+    if (d.maThe) {
+        toast('Đã điền đầy đủ, kiểm tra và tra cứu');
+    } else {
+        toast('Đã điền Họ tên & Ngày sinh. Nhập số thẻ BHYT.');
+    }
+
+    go('form');
+
+    // Focus vào ô trống đầu tiên
+    setTimeout(() => {
+        if (!document.getElementById('f-ma').value) document.getElementById('f-ma').focus();
+        else if (!document.getElementById('f-cap').value) document.getElementById('f-cap').focus();
+    }, 400);
+}
+
+/* ==============================================================
+   PARSE QR THẺ BHYT
+   ================================================================
+   Format thực tế (phân cách |):
+
+   Trường hợp 1 — 4 phần tử (ngắn):
+     084087013191|334457163|Huỳnh Văn Nhúc|21101987
+                 ^^^^^^^^^
+                 CMND cũ (9 số)
+
+   Trường hợp 2 — 7 phần tử (đầy đủ, có CMND):
+     084082011604|334366270|Nguyễn Văn Sơn|01011982|Nam|Ấp Xoài Rùm...|11082021
+
+   Trường hợp 3 — 7 phần tử (KHÔNG có CMND, phần tử [1] trống):
+     084206010252||Nguyễn Phước Sang|20092006|Nam|Ấp Xoài Rùm...|17062021
+                  ^
+                  trống = chưa có CMND
+
+   Luật phân loại phần tử [0]:
+     - 12 số → CCCD
+     - 10 số → có thể là thẻ BHYT (hiếm) hoặc CCCD cũ
+     - Không phải số thuần → giữ nguyên
+
+   Phần tử [1]:
+     - 9 số → CMND cũ
+     - Trống → chưa có CMND
+     - 12 số → có thể là CCCD (thứ tự đảo)
+
+   Phần tử [2]: Họ tên
+   Phần tử [3]: Ngày sinh ddmmyyyy → dd/mm/yyyy
+   Phần tử [4]: Giới tính
+   Phần tử [5]: Địa chỉ
+   Phần tử [6]: Ngày cấp
+   ============================================================== */
+function parseBHYT(text) {
+    const r = { maThe: '', cccd: '', cmnd: '', hoTen: '', ngaySinh: '', gioiTinh: '', diaChi: '' };
+    const p = text.split('|');
+    if (p.length < 3) return r;
+
+    const e0 = p[0].trim(); // Phần tử đầu tiên
+    const e1 = (p[1] || '').trim(); // Phần tử thứ hai
+
+    /* --- Phân loại phần tử [0] và [1] --- */
+    if (/^\d{12}$/.test(e0)) {
+        // 12 số → chắc chắn là CCCD
+        r.cccd = e0;
+    } else if (/^\d{10}$/.test(e0)) {
+        // 10 số → có thể là thẻ BHYT
+        r.maThe = e0;
+    }
+
+    if (/^\d{9}$/.test(e1)) {
+        // 9 số → CMND cũ
+        r.cmnd = e1;
+    } else if (/^\d{12}$/.test(e1) && !r.cccd) {
+        // 12 số ở vị trí [1] và [0] chưa phải CCCD → [1] là CCCD
+        r.cccd = e1;
+    } else if (/^\d{10}$/.test(e1) && !r.maThe) {
+        // 10 số ở [1] và [0] chưa phải mã thẻ → [1] là mã thẻ
+        r.maThe = e1;
+    }
+
+    /* --- Họ tên, Ngày sinh, các phần tử còn lại --- */
+    r.hoTen = p[2] ? p[2].trim() : '';
+    r.ngaySinh = p[3] ? fmtNS(p[3].trim()) : '';
+    if (p.length >= 5) r.gioiTinh = p[4].trim();
+    if (p.length >= 6) r.diaChi = p[5].trim();
+
+    console.log('[Parse BHYT QR]', p, '→', r);
+    return r;
+}
+
+/* ==============================================================
+   PARSE QR CCCD (mặt sau CCCD)
+   ================================================================
+   Format: DNI|Số CCCD|Họ tên|Ngày sinh|Giới tính|Quốc tịch|Địa chỉ|...
+   ============================================================== */
+function parseCCCD(text) {
+    const r = { maThe: '', cccd: '', cmnd: '', hoTen: '', ngaySinh: '', gioiTinh: '', diaChi: '' };
+
+    if (!text.includes('DNI|')) {
+        // Không phải format chuẩn, thử parse lỏng
+        console.log('[Parse CCCD] Không match DNI format, thử fallback');
+        return r;
+    }
+
+    const p = text.split('|');
+    if (p.length < 4) return r;
+
+    r.cccd = p[1] ? p[1].trim() : '';
+    r.hoTen = p[2] ? p[2].trim() : '';
+    r.ngaySinh = p[3] ? fmtNS(p[3].trim()) : '';
+    if (p.length >= 5) r.gioiTinh = p[4].trim();
+    if (p.length >= 8) r.diaChi = p[6] ? p[6].trim() : '';
+
+    console.log('[Parse CCCD QR]', p, '→', r);
+    return r;
+}
+
+/* ==============================================================
+   FORMAT NGÀY SINH
+   ddmmyyyy  → dd/mm/yyyy   (21101987 → 21/10/1987)
+   dd/mm/yyyy → dd/mm/yyyy  (giữ nguyên, chuẩn hóa padding)
+   yyyy-mm-dd → dd/mm/yyyy
+   ============================================================== */
+function fmtNS(s) {
+    s = s.trim();
+    if (/^\d{8}$/.test(s))
+        return s.substring(0,2) + '/' + s.substring(2,4) + '/' + s.substring(4,8);
+    let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (m) return m[1].padStart(2,'0') + '/' + m[2].padStart(2,'0') + '/' + m[3];
+    m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+    if (m) return m[3].padStart(2,'0') + '/' + m[2].padStart(2,'0') + '/' + m[1];
+    return s;
+}
+
+/* ==============================================================
+   NHẬP THỦ CÔNG → FORM
+   ============================================================== */
+function manualGo() {
+    const ma = document.getElementById('m-ma').value.trim();
+    const cc = document.getElementById('m-cc').value.trim();
+    const ht = document.getElementById('m-ht').value.trim();
+    const ns = document.getElementById('m-ns').value.trim();
+
+    if (!ma) { toast('Nhập số thẻ BHYT'); return; }
+    if (!ht) { toast('Nhập họ và tên'); return; }
+
+    document.getElementById('f-ma').value = ma;
+    document.getElementById('f-ht').value = ht;
+    document.getElementById('f-ns').value = ns;
+    document.getElementById('f-cap').value = '';
+    clearErrors();
+
+    // Ẩn/hiện ô CCCD
+    const ccCard = document.getElementById('cccd-card');
+    if (cc) {
+        ccCard.style.display = 'block';
+        document.getElementById('f-cc').value = cc;
+    } else {
+        ccCard.style.display = 'none';
+    }
+
+    // Ẩn QR card
+    document.getElementById('qr-card').style.display = 'none';
+
+    go('form');
+}
+
+/* ==============================================================
+   VALIDATION FORM
+   ============================================================== */
+function clearErrors() {
+    document.querySelectorAll('.err-msg').forEach(e => e.classList.remove('show'));
+    document.querySelectorAll('.err-border').forEach(e => e.classList.remove('err-border'));
+}
+
+function showErr(id, inputId) {
+    document.getElementById(id).classList.add('show');
+    if (inputId) document.getElementById(inputId).classList.add('err-border');
+}
+
+function validateForm() {
+    clearErrors();
+    let ok = true;
+
+    const ma = document.getElementById('f-ma').value.trim();
+    const ht = document.getElementById('f-ht').value.trim();
+    const ns = document.getElementById('f-ns').value.trim();
+    const cap = document.getElementById('f-cap').value.trim();
+
+    if (!ma || ma.length < 9) {
+        showErr('err-ma', 'f-ma');
+        ok = false;
+    }
+    if (!ht) {
+        showErr('err-ht', 'f-ht');
+        ok = false;
+    }
+    if (!ns || !/^\d{2}\/\d{2}\/\d{4}$/.test(ns)) {
+        showErr('err-ns', 'f-ns');
+        ok = false;
+    }
+    if (!cap) {
+        showErr('err-cap', 'f-cap');
+        ok = false;
+    }
+
+    return ok;
+}
+
+/* ==============================================================
+   CAPTCHA — tải từ server BHXH qua CORS proxy
+   ============================================================== */
+async function loadCap() {
+    const img = document.getElementById('cap-i');
+    const wrap = document.getElementById('cap-w');
+    img.style.display = 'none';
+    wrap.classList.add('shm');
+    document.getElementById('f-cap').value = '';
+    let ok = false;
+
+    // Cách 1: GET trang chính, tìm thẻ <img captcha>
+    try {
+        const r = await fetch(PX + encodeURIComponent(API), { headers: { 'Accept': 'text/html' } });
+        if (r.ok) {
+            const html = await r.text();
+            for (const pat of [
+                /src=["']([^"']*captcha[^"']*)/i,
+                /src=["']([^"']*Captcha[^"']*)/i,
+                /id=["'](?:imgCaptcha|CaptchaImg)["'][^>]*src=["']([^"']*)/i,
+                /src=["']([^"']*(?:\.ashx|\.axd)[^"']*)/i,
+            ]) {
+                const m = html.match(pat);
+                if (m) {
+                    let src = m[1];
+                    if (src.startsWith('/')) src = 'https://baohiemxahoi.gov.vn' + src;
+                    else if (!src.startsWith('http')) src = 'https://baohiemxahoi.gov.vn/UserControls/BHXH/BaoHiemYTe/TheBHYT/' + src;
+                    src += (src.includes('?') ? '&' : '?') + 't=' + Date.now();
+                    await tImg(img, PX + encodeURIComponent(src));
+                    if (img.naturalWidth > 20) { ok = true; break; }
+                }
+            }
+        }
+    } catch (e) { console.log('Cap m1:', e.message); }
+
+    // Cách 2: endpoint phổ biến
+    if (!ok) {
+        for (const u of [
+            API + '?cmd=refresh_captcha&t=' + Date.now(),
+            API + '?action=captcha&t=' + Date.now(),
+            'https://baohiemxahoi.gov.vn/CaptchaImage.aspx?t=' + Date.now(),
+        ]) {
+            await tImg(img, PX + encodeURIComponent(u));
+            if (img.naturalWidth > 20) { ok = true; break; }
+        }
+    }
+
+    wrap.classList.remove('shm');
+    if (ok) {
+        img.style.display = 'block';
+    } else {
+        img.style.display = 'none';
+        wrap.innerHTML = `
+            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--sfv);flex-direction:column;gap:3px;padding:6px">
+                <span class="material-icons-round" style="font-size:18px;color:var(--ol)">shield</span>
+                <span style="font-size:9px;color:var(--ol);text-align:center;line-height:1.25">Mở trang BHXH<br>để xem captcha</span>
+            </div>
+            <button class="cb" onclick="event.stopPropagation();loadCap()" title="Thử lại"><span class="material-icons-round" style="font-size:14px">refresh</span></button>`;
+        toast('Không tải được captcha. Mở baohiemxahoi.gov.vn để xem.');
+    }
+}
+
+function tImg(img, src) {
+    return new Promise(res => {
+        img.onload = res; img.onerror = res; img.src = src;
+        setTimeout(res, 4000);
+    });
+}
+
+/* ==============================================================
+   GỬI FORM TRA CỨU
+   ============================================================== */
+async function doSubmit() {
+    if (!validateForm()) {
+        toast('Vui lòng điền đầy đủ thông tin');
+        return;
+    }
+
+    const ma  = document.getElementById('f-ma').value.trim();
+    const ht  = document.getElementById('f-ht').value.trim();
+    const ns  = document.getElementById('f-ns').value.trim();
+    const cap = document.getElementById('f-cap').value.trim().toUpperCase();
+
+    const btn = document.getElementById('btn-go');
+    btn.disabled = true;
+    btn.classList.remove('pls');
+    btn.innerHTML = '<div class="sp"></div>Đang tra cứu...';
+    go('load');
+
+    try {
+        const params = new URLSearchParams({
+            txtMaThe: ma,
+            tokenRecaptch: cap,
+            txtHoTen: ht,
+            txtNgaySinh: ns
+        });
+
+        const r = await fetch(PX + encodeURIComponent(API), {
+            method: 'POST',
+            headers: {
+                'Accept': '*/*',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: params.toString()
+        });
+
+        if (r.ok) {
+            parseResult(await r.text(), ma, ht, ns);
+        } else {
+            showErrPage('Lỗi kết nối', 'Server trả về mã lỗi ' + r.status + '. Thử lại sau.');
+        }
+    } catch (e) {
+        console.error('Submit error:', e);
+        showErrPage('Không thể kết nối', 'Lỗi mạng hoặc CORS block. Gợi ý: dùng app Flutter native để không bị giới hạn CORS.');
+    }
+
+    btn.disabled = false;
+    btn.classList.add('pls');
+    btn.innerHTML = '<span class="material-icons-round" style="font-size:20px">search</span>Tra cứu thời hạn thẻ';
+}
+
+/* ==============================================================
+   PARSE KẾT QUẢ
+   ============================================================== */
+function parseResult(html, ma, ht, ns) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const txt = (doc.body || doc.documentElement).textContent || '';
+    const data = {};
+
+    doc.querySelectorAll('tr').forEach(row => {
+        const cells = row.querySelectorAll('td, th');
+        if (cells.length >= 2) {
+            const l = cells[0].textContent.trim();
+            const v = cells[1].textContent.trim();
+            if (l && v && v.length < 200) data[l] = v;
+        }
+    });
+
+    const hasData = Object.keys(data).length > 0;
+    const hasInfo = /thẻ BHYT|thời hạn|hiệu lực|hết hạn|đăng ký|nơi KCB/i.test(txt);
+    const isErr  = /không tồn tại|không đúng|sai mã|hệ thống đang bảo trì/i.test(txt);
+    const isCapErr = /mã xác nhận|captcha/i.test(txt) && /không đúng|sai|nhập lại/i.test(txt);
+
+    if (isCapErr) { showErrPage('Mã xác nhận sai', 'Nhập lại captcha và thử lại.'); return; }
+    if (isErr)    { showErrPage('Tra cứu thất bại', 'Thông tin không hợp lệ hoặc thẻ không tồn tại.'); return; }
+
+    if (hasData && hasInfo) {
+        showOk(data, txt, ma);
+    } else if (html.length < 200) {
+        showErrPage('Phản hồi rỗng', 'Server không trả dữ liệu. Phiên hết hạn hoặc bị block.');
+    } else {
+        showRaw(html, ma);
+    }
+}
+
+/* --- Kết quả OK --- */
+function showOk(data, txt, ma) {
+    const expired = /hết hạn/i.test(txt);
+    const cls = expired ? 'er' : 'ok';
+    const label = expired ? 'Đã hết hạn' : 'Còn hiệu lực';
+
+    let rows = '';
+    const map = {
+        'Số thẻ BHYT':'Số thẻ','Mã thẻ':'Mã thẻ','Họ và tên':'Họ và tên','Ngày sinh':'Ngày sinh',
+        'Giới tính':'Giới tính','Nơi đăng ký KCB đầu tiên':'Nơi KCB','Nơi đăng ký KCB':'Nơi KCB',
+        'Từ ngày':'Hiệu lực từ','Đến ngày':'Hiệu lực đến','Thời hạn sử dụng':'Thời hạn',
+    };
+    for (const [k, v] of Object.entries(data)) {
+        rows += `<div class="rr"><div class="rl">${map[k]||k}</div><div class="rv">${v}</div></div>`;
+    }
+
+    document.getElementById('res-sb').textContent = 'Mã thẻ: ' + ma;
+    document.getElementById('res-c').innerHTML = `
+        <div class="rc">
+            <div class="rh ${cls}">
+                <span class="material-icons-round" style="font-size:36px;margin-bottom:6px">${expired?'event_busy':'verified_user'}</span>
+                <div style="font-size:17px;font-weight:700;margin-bottom:8px">Thẻ Bảo hiểm Y tế</div>
+                <div class="bg ${cls}" style="margin:0 auto">
+                    <span class="material-icons-round" style="font-size:15px">${expired?'cancel':'check_circle'}</span>${label}
+                </div>
+            </div>
+            <div class="rb">${rows}</div>
+        </div>
+        <div style="display:flex;gap:10px">
+            <button class="btn t" onclick="go('form')" style="flex:1"><span class="material-icons-round" style="font-size:18px">refresh</span>Tra lại</button>
+            <button class="btn f" onclick="go('home')" style="flex:1"><span class="material-icons-round" style="font-size:18px">home</span>Trang chủ</button>
+        </div>`;
+    go('res');
+}
+
+/* --- Kết quả lỗi --- */
+function showErrPage(title, msg) {
+    document.getElementById('res-sb').textContent = 'Có lỗi xảy ra';
+    document.getElementById('res-c').innerHTML = `
+        <div class="rc">
+            <div class="rh er">
+                <span class="material-icons-round" style="font-size:36px;margin-bottom:6px">error_outline</span>
+                <div style="font-size:17px;font-weight:700">${title}</div>
+            </div>
+            <div class="rb">
+                <p style="font-size:13px;color:var(--osv);line-height:1.6;margin-bottom:14px">${msg}</p>
+                <div class="in" style="background:var(--sec-c)">
+                    <span class="material-icons-round" style="color:var(--sec)">lightbulb</span>
+                    <p style="color:#4E342E">Do giới hạn CORS của trình duyệt, web app có thể không kết nối trực tiếp đến BHXH. Build app Flutter native để hoạt động ổn định.</p>
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px">
+            <button class="btn o" onclick="go('form')" style="flex:1">Thử lại</button>
+            <button class="btn f" onclick="go('home')" style="flex:1">Trang chủ</button>
+        </div>`;
+    go('res');
+}
+
+/* --- Raw response --- */
+function showRaw(html, ma) {
+    const clean = html.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+    document.getElementById('res-sb').textContent = 'Mã thẻ: ' + ma;
+    document.getElementById('res-c').innerHTML = `
+        <div class="rc">
+            <div class="rh inf">
+                <span class="material-icons-round" style="font-size:36px;margin-bottom:6px">code</span>
+                <div style="font-size:17px;font-weight:700">Phản hồi từ server</div>
+            </div>
+            <div class="rb">
+                <p style="font-size:12px;color:var(--osv);margin-bottom:12px">Server trả dữ liệu nhưng không parse được tự động:</p>
+                <div style="background:#1a2332;color:#a5d6ff;padding:14px;border-radius:12px;font-size:11px;font-family:monospace;line-height:1.6;max-height:180px;overflow-y:auto;word-break:break-all">${clean.substring(0,500)}${clean.length>500?'...':''}</div>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px">
+            <button class="btn o" onclick="go('form')" style="flex:1">Thử lại</button>
+            <button class="btn f" onclick="go('home')" style="flex:1">Trang chủ</button>
+        </div>`;
+    go('res');
+}
+
+/* ==============================================================
+   FORMAT TỰ ĐỘNG NGÀY SINH
+   ============================================================== */
+function fmtDateInput(e) {
+    let v = e.target.value.replace(/[^\d]/g, '');
+    if (v.length > 8) v = v.substring(0, 8);
+    if (v.length >= 4) e.target.value = v.substring(0,2) + '/' + v.substring(2,4) + '/' + v.substring(4);
+    else if (v.length >= 2) e.target.value = v.substring(0,2) + '/' + v.substring(2);
+    else e.target.value = v;
+}
+
+/* Chỉ nhận số cho các ô số */
+function numOnly(e) { e.target.value = e.target.value.replace(/[^\d]/g, ''); }
+
+/* Gắn sự kiện */
+document.getElementById('m-ns').addEventListener('input', fmtDateInput);
+document.getElementById('f-ns').addEventListener('input', fmtDateInput);
+document.getElementById('m-ma').addEventListener('input', numOnly);
+document.getElementById('m-cc').addEventListener('input', numOnly);
+document.getElementById('f-ma').addEventListener('input', numOnly);
+document.getElementById('f-cap').addEventListener('input', function() { this.value = this.value.toUpperCase(); });
+document.getElementById('f-cap').addEventListener('keydown', function(e) { if (e.key === 'Enter') doSubmit(); });
+
+/* Xóa lỗi khi user bắt đầu nhập lại */
+['f-ma','f-ht','f-ns','f-cap'].forEach(id => {
+    document.getElementById(id).addEventListener('input', function() {
+        this.classList.remove('err-border');
+        const errId = 'err-' + id.split('-')[1];
+        const errEl = document.getElementById(errId);
+        if (errEl) errEl.classList.remove('show');
+    });
+});
+
+console.log('[BHYT Lookup] Ready — python -m http.server 8080');
+</script>
+</body>
+</html>
